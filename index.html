@@ -199,7 +199,7 @@
             document.getElementById('user-info').classList.remove('hidden');
             
             document.getElementById('display-name').innerText = currentUser.username.toUpperCase();
-            document.getElementById('display-role').innerText = currentUser.role === 'guru' ? 'Guru / Ustadz' : 'Siswa / Santri';
+            document.getElementById('display-role').innerText = currentUser.role === 'guru' ? 'Admin' : 'Santri Nganjuk Effluxion';
 
             if (currentUser.role === 'siswa') {
                 panelSiswa.classList.remove('hidden');
