@@ -177,12 +177,14 @@
 
             // JIKA SUKSES MASUK
             currentUser = { id: querySnapshot.docs[0].id, ...userData };
-            alert(`Selamat datang, ${currentUser.username.toUpperCase()}!`);
-            masukDashboard();
+			// Simpan ke memori browser agar tidak hilang saat refresh
+			localStorage.setItem('sesiLoginSipoin', JSON.stringify(currentUser));			
         });
 
         document.getElementById('btn-logout').addEventListener('click', () => {
             currentUser = null;
+			// Hapus dari memori browser saat logout
+			localStorage.removeItem('sesiLoginSipoin');
             pageDashboard.classList.add('hidden');
             document.getElementById('user-info').classList.add('hidden');
             pageLogin.classList.remove('hidden');
@@ -363,6 +365,14 @@
                 }
             } catch (error) {
                 console.error("Error update persetujuan: ", error);
+            }
+        };
+		// ==== CEK LOGIN OTOMATIS SAAT HALAMAN DI-REFRESH ====
+        window.onload = () => {
+            const sesiTersimpan = localStorage.getItem('sesiLoginSipoin');
+            if (sesiTersimpan) {
+                currentUser = JSON.parse(sesiTersimpan);
+                masukDashboard(); // Langsung bawa ke dashboard!
             }
         };
     </script>
