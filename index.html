@@ -1,1 +1,296 @@
-sddd
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Kredit Skor Santri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Desain minimalis dan modern */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-lg font-semibold tracking-wide"><i class="fa-solid fa-shield-halved mr-2"></i>Sistem Kedisiplinan</h1>
+            <div id="user-info" class="hidden flex items-center space-x-4">
+                <span id="display-name" class="text-sm font-medium text-slate-300"></span>
+                <button id="btn-logout" class="bg-slate-700 hover:bg-slate-600 px-4 py-1.5 rounded-md text-sm transition">Keluar</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Halaman Login -->
+    <main id="page-login" class="flex-grow flex items-center justify-center p-4">
+        <div class="glass-panel p-8 rounded-2xl shadow-sm w-full max-w-md">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-800">Masuk ke Sistem</h2>
+                <p class="text-slate-500 text-sm mt-1">Gunakan ID Anda untuk melanjutkan</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Nama Lengkap / ID</label>
+                    <input type="text" id="login-name" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-slate-800 focus:outline-none transition" placeholder="Masukkan nama Anda...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Masuk Sebagai</label>
+                    <select id="login-role" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-slate-800 focus:outline-none transition">
+                        <option value="siswa">Siswa / Santri</option>
+                        <option value="guru">Guru / Ustadz</option>
+                    </select>
+                </div>
+                <button id="btn-login" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-semibold hover:bg-slate-900 transition mt-4">Masuk</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dashboard Utama (Tersembunyi sampai Login) -->
+    <main id="page-dashboard" class="hidden max-w-6xl mx-auto px-6 py-8 w-full">
+        
+        <!-- ================= PANEL SISWA ================= -->
+        <div id="panel-siswa" class="hidden space-y-6">
+            <div class="glass-panel rounded-2xl p-8 text-center">
+                <h2 class="text-slate-500 font-medium tracking-wide uppercase text-sm mb-2">Kredit Skor</h2>
+                <div class="text-7xl font-bold text-slate-800 tracking-tight" id="student-score">100</div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Form Laporan -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold mb-5 flex items-center"><i class="fa-solid fa-pen-nib mr-2 text-slate-400"></i> Buat Laporan</h3>
+                    <form id="form-laporan" class="space-y-4">
+                        <select id="jenis-laporan" class="w-full border border-slate-200 rounded-lg px-4 py-2.5 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" required>
+                            <option value="pelanggaran">Laporkan Pelanggaran</option>
+                            <option value="kebaikan">Laporkan Kebaikan</option>
+                            <option value="banding">Ajukan Banding Skor</option>
+                        </select>
+                        <input type="text" id="nama-terkait" placeholder="Nama Santri Terkait" class="w-full border border-slate-200 rounded-lg px-4 py-2.5 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" required>
+                        <textarea id="deskripsi" rows="3" class="w-full border border-slate-200 rounded-lg px-4 py-2.5 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" placeholder="Deskripsi kejadian..." required></textarea>
+                        <button type="submit" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-medium hover:bg-slate-900 transition">Kirim Laporan</button>
+                    </form>
+                </div>
+
+                <!-- Riwayat -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold mb-5 flex items-center"><i class="fa-solid fa-clock-rotate-left mr-2 text-slate-400"></i> Status Laporan</h3>
+                    <div id="list-riwayat-siswa" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+                        <!-- Data dimasukkan via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PANEL GURU ================= -->
+        <div id="panel-guru" class="hidden space-y-6">
+            <div class="glass-panel rounded-2xl p-6 border-l-4 border-slate-800">
+                <h2 class="text-xl font-bold text-slate-800">Panel Manajemen Guru</h2>
+                <p class="text-slate-500 text-sm mt-1">Tinjau laporan masuk dan atur kredit skor siswa.</p>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-6">
+                <h3 class="text-lg font-semibold mb-5">Laporan Menunggu Persetujuan</h3>
+                <div id="list-persetujuan-guru" class="space-y-4">
+                    <!-- Data dimasukkan via JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase dan Logika Sistem -->
+    <script type="module">
+        // 1. IMPORT FIREBASE SDK (Versi Modular)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, updateDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // 2. MASUKKAN KONFIGURASI FIREBASE ANDA DI SINI
+        // (Lihat Langkah 2 di instruksi untuk mendapatkan kode ini)
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2CvnIYD8_JM9DqJQViSJGs-a1io72J88",
+  authDomain: "sistem-skor-ngx.firebaseapp.com",
+  projectId: "sistem-skor-ngx",
+  storageBucket: "sistem-skor-ngx.firebasestorage.app",
+  messagingSenderId: "938759414028",
+  appId: "1:938759414028:web:f0a4c526daebd57222e929"
+        };
+
+        // Inisialisasi Firebase
+        let app, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase belum dikonfigurasi. Silakan isi firebaseConfig.");
+        }
+
+        // Variabel Sesi
+        let currentUser = null;
+        let globalScore = 100; // Untuk kesederhanaan prototipe, skor berbagi satu database
+        
+        // Elemen DOM
+        const pageLogin = document.getElementById('page-login');
+        const pageDashboard = document.getElementById('page-dashboard');
+        const panelSiswa = document.getElementById('panel-siswa');
+        const panelGuru = document.getElementById('panel-guru');
+        const userInfo = document.getElementById('user-info');
+        const displayName = document.getElementById('display-name');
+
+        // Fungsi Login
+        document.getElementById('btn-login').addEventListener('click', () => {
+            const name = document.getElementById('login-name').value.trim();
+            const role = document.getElementById('login-role').value;
+            
+            if (!name) return alert("Silakan masukkan nama Anda.");
+            if (role === 'guru' && name.toLowerCase() !== 'ustadz muhammad brillian l. h.' && name.toLowerCase() !== 'admin') {
+                // Keamanan sederhana: Hanya nama spesifik yang bisa jadi guru di versi ini
+                return alert("Akses ditolak. Nama tidak terdaftar sebagai Guru.");
+            }
+
+            currentUser = { name, role };
+            
+            // Ubah UI
+            pageLogin.classList.add('hidden');
+            pageDashboard.classList.remove('hidden');
+            userInfo.classList.remove('hidden');
+            
+            // Atur default nama Ustadz
+            if (role === 'guru' && name.toLowerCase() === 'admin') {
+                currentUser.name = 'Ustadz Muhammad Brillian L. H.';
+            }
+
+            displayName.innerText = currentUser.name;
+
+            if (role === 'siswa') {
+                panelSiswa.classList.remove('hidden');
+                panelGuru.classList.add('hidden');
+            } else {
+                panelGuru.classList.remove('hidden');
+                panelSiswa.classList.add('hidden');
+            }
+
+            loadDataRealtime();
+        });
+
+        // Fungsi Logout
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            currentUser = null;
+            pageDashboard.classList.add('hidden');
+            userInfo.classList.add('hidden');
+            pageLogin.classList.remove('hidden');
+            document.getElementById('login-name').value = '';
+        });
+
+        // Kirim Laporan ke Database
+        document.getElementById('form-laporan').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!db) return alert("Sambungkan Firebase terlebih dahulu!");
+
+            const jenis = document.getElementById('jenis-laporan').value;
+            const terkait = document.getElementById('nama-terkait').value;
+            const deskripsi = document.getElementById('deskripsi').value;
+
+            try {
+                await addDoc(collection(db, "laporan"), {
+                    pelapor: currentUser.name,
+                    terkait: terkait,
+                    jenis: jenis,
+                    deskripsi: deskripsi,
+                    status: "menunggu",
+                    timestamp: new Date()
+                });
+                e.target.reset();
+                alert("Laporan berhasil dikirim ke database!");
+            } catch (error) {
+                console.error("Error menambah laporan: ", error);
+            }
+        });
+
+        // Baca Data dari Database secara Realtime
+        function loadDataRealtime() {
+            if (!db) return;
+
+            const q = query(collection(db, "laporan"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const listRiwayat = document.getElementById('list-riwayat-siswa');
+                const listGuru = document.getElementById('list-persetujuan-guru');
+                
+                listRiwayat.innerHTML = '';
+                listGuru.innerHTML = '';
+                let tempScore = 100; // Kalkulasi skor dinamis berdasarkan laporan yang disetujui
+
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const id = docSnap.id;
+                    
+                    // Hitung Skor
+                    if (data.status === 'disetujui') {
+                        if (data.jenis === 'pelanggaran') tempScore -= 10;
+                        if (data.jenis === 'kebaikan' || data.jenis === 'banding') tempScore += 10;
+                    }
+
+                    // Render UI Siswa (Hanya tampilkan laporannya sendiri atau jika dia yang terkait)
+                    if (currentUser.role === 'siswa' && (data.pelapor === currentUser.name || data.terkait === currentUser.name)) {
+                        let statusColor = data.status === 'menunggu' ? 'bg-amber-100 text-amber-700' : 
+                                          data.status === 'disetujui' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+                        
+                        listRiwayat.innerHTML += `
+                            <div class="border border-slate-100 bg-white rounded-xl p-4 text-sm shadow-sm">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-semibold text-slate-700 uppercase text-xs tracking-wider">${data.jenis}</span>
+                                    <span class="px-2.5 py-1 rounded-md text-xs font-semibold ${statusColor}">${data.status.toUpperCase()}</span>
+                                </div>
+                                <p class="text-slate-600"><strong>Subjek:</strong> ${data.terkait}</p>
+                                <p class="text-slate-500 mt-1">${data.deskripsi}</p>
+                            </div>
+                        `;
+                    }
+
+                    // Render UI Guru (Tampilkan yang menunggu persetujuan)
+                    if (currentUser.role === 'guru' && data.status === 'menunggu') {
+                        listGuru.innerHTML += `
+                            <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 uppercase text-sm mb-1">${data.jenis} <span class="text-slate-400 normal-case font-normal">(Pelapor: ${data.pelapor})</span></h4>
+                                    <p class="text-sm text-slate-700"><strong>Terkait:</strong> ${data.terkait}</p>
+                                    <p class="text-sm text-slate-500 mt-1">"${data.deskripsi}"</p>
+                                </div>
+                                <div class="flex space-x-2 shrink-0">
+                                    <button onclick="prosesLaporan('${id}', 'disetujui')" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-900 transition">Setujui</button>
+                                    <button onclick="prosesLaporan('${id}', 'ditolak')" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition">Tolak</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                // Update UI Skor
+                tempScore = Math.min(tempScore, 100); // Maksimal 100
+                const scoreDisplay = document.getElementById('student-score');
+                scoreDisplay.innerText = tempScore;
+                if(tempScore < 50) scoreDisplay.className = "text-7xl font-bold tracking-tight text-red-500";
+                else if(tempScore < 80) scoreDisplay.className = "text-7xl font-bold tracking-tight text-amber-500";
+                else scoreDisplay.className = "text-7xl font-bold tracking-tight text-slate-800";
+
+                if(listRiwayat.innerHTML === '') listRiwayat.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Belum ada data.</p>';
+                if(listGuru.innerHTML === '') listGuru.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Tidak ada laporan yang perlu ditinjau.</p>';
+            });
+        }
+
+        // Fungsi Global untuk Tombol Aksi Guru
+        window.prosesLaporan = async (id, aksi) => {
+            if (!db) return;
+            try {
+                const docRef = doc(db, "laporan", id);
+                await updateDoc(docRef, { status: aksi });
+            } catch (error) {
+                console.error("Error update status: ", error);
+            }
+        };
+    </script>
+</body>
+</html>
