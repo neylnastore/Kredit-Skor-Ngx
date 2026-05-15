@@ -177,6 +177,8 @@
 
             // JIKA SUKSES MASUK
             currentUser = { id: querySnapshot.docs[0].id, ...userData };
+			alert(`Selamat datang, ${currentUser.username.toUpperCase()}!`);
+            masukDashboard();
 			// Simpan ke memori browser agar tidak hilang saat refresh
 			localStorage.setItem('sesiLoginSipoin', JSON.stringify(currentUser));			
         });
