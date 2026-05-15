@@ -7,288 +7,359 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Desain minimalis dan modern */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .glass-panel { background: #ffffff; border: 1px solid #e2e8f0; }
+        .score-safe { color: #0f766e; } /* Hijau/Teal */
+        .score-warning { color: #f59e0b; } /* Kuning/Orange (Mendekati 50) */
+        .score-danger { color: #ef4444; } /* Merah (<= 50) */
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Navbar -->
-    <nav class="bg-slate-900 text-white shadow-md">
+    <nav class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
             <h1 class="text-lg font-semibold tracking-wide"><i class="fa-solid fa-shield-halved mr-2"></i>Sistem Kedisiplinan</h1>
             <div id="user-info" class="hidden flex items-center space-x-4">
-                <span id="display-name" class="text-sm font-medium text-slate-300"></span>
-                <button id="btn-logout" class="bg-slate-700 hover:bg-slate-600 px-4 py-1.5 rounded-md text-sm transition">Keluar</button>
+                <div class="text-right">
+                    <div id="display-name" class="text-sm font-bold text-white"></div>
+                    <div id="display-role" class="text-xs text-slate-400 capitalize"></div>
+                </div>
+                <button id="btn-logout" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-md text-sm font-medium transition">Keluar</button>
             </div>
         </div>
     </nav>
 
-    <!-- Halaman Login -->
     <main id="page-login" class="flex-grow flex items-center justify-center p-4">
         <div class="glass-panel p-8 rounded-2xl shadow-sm w-full max-w-md">
             <div class="text-center mb-8">
-                <h2 class="text-2xl font-bold text-slate-800">Masuk ke Sistem</h2>
-                <p class="text-slate-500 text-sm mt-1">Gunakan ID Anda untuk melanjutkan</p>
+                <h2 class="text-2xl font-bold text-slate-800">Masuk / Daftar</h2>
+                <p class="text-slate-500 text-sm mt-2">Jika username belum ada, otomatis terdaftar sebagai Siswa.</p>
+                <p class="text-slate-500 text-sm mt-1">Login dengan username <b>admin</b> untuk akses Guru.</p>
             </div>
-            <div class="space-y-4">
+            <form id="form-login" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Nama Lengkap / ID</label>
-                    <input type="text" id="login-name" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-slate-800 focus:outline-none transition" placeholder="Masukkan nama Anda...">
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Username</label>
+                    <input type="text" id="login-username" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-slate-800 outline-none" required placeholder="Contoh: ahmad">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Masuk Sebagai</label>
-                    <select id="login-role" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-slate-800 focus:outline-none transition">
-                        <option value="siswa">Siswa / Santri</option>
-                        <option value="guru">Guru / Ustadz</option>
-                    </select>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Password</label>
+                    <input type="password" id="login-password" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-slate-800 outline-none" required placeholder="••••••••">
                 </div>
-                <button id="btn-login" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-semibold hover:bg-slate-900 transition mt-4">Masuk</button>
-            </div>
+                <button type="submit" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-semibold hover:bg-slate-900 transition mt-4">Masuk ke Sistem</button>
+            </form>
         </div>
     </main>
 
-    <!-- Dashboard Utama (Tersembunyi sampai Login) -->
-    <main id="page-dashboard" class="hidden max-w-6xl mx-auto px-6 py-8 w-full">
+    <main id="page-dashboard" class="hidden max-w-6xl mx-auto px-4 sm:px-6 py-8 w-full space-y-6">
         
-        <!-- ================= PANEL SISWA ================= -->
-        <div id="panel-siswa" class="hidden space-y-6">
-            <div class="glass-panel rounded-2xl p-8 text-center">
-                <h2 class="text-slate-500 font-medium tracking-wide uppercase text-sm mb-2">Kredit Skor</h2>
-                <div class="text-7xl font-bold text-slate-800 tracking-tight" id="student-score">100</div>
+        <div class="glass-panel rounded-2xl p-6 shadow-sm border-t-4 border-indigo-600">
+            <h3 class="text-lg font-bold mb-4 flex items-center text-indigo-900"><i class="fa-solid fa-trophy mr-2 text-indigo-500"></i> Leaderboard Kredit Skor Santri</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                            <th class="p-3 font-semibold w-16">Peringkat</th>
+                            <th class="p-3 font-semibold">Nama Siswa</th>
+                            <th class="p-3 font-semibold text-center w-32">Kredit Skor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list-ranking" class="text-sm divide-y divide-slate-100">
+                        </tbody>
+                </table>
             </div>
+        </div>
 
-            <div class="grid md:grid-cols-2 gap-6">
-                <!-- Form Laporan -->
-                <div class="glass-panel rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold mb-5 flex items-center"><i class="fa-solid fa-pen-nib mr-2 text-slate-400"></i> Buat Laporan</h3>
+        <div id="panel-siswa" class="hidden space-y-6">
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-panel rounded-2xl p-6 shadow-sm text-center flex flex-col justify-center items-center h-full">
+                    <h2 class="text-slate-500 font-medium tracking-wide uppercase text-sm mb-2">Skor Saya Saat Ini</h2>
+                    <div class="text-7xl font-bold tracking-tight transition-colors duration-300" id="student-score">100</div>
+                    <p id="score-message" class="text-xs text-slate-400 mt-3">Pertahankan skor Anda!</p>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-6 shadow-sm md:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4 border-b border-slate-100 pb-3"><i class="fa-solid fa-pen-nib mr-2 text-slate-400"></i> Buat Laporan / Banding</h3>
                     <form id="form-laporan" class="space-y-4">
-                        <select id="jenis-laporan" class="w-full border border-slate-200 rounded-lg px-4 py-2.5 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" required>
-                            <option value="pelanggaran">Laporkan Pelanggaran</option>
-                            <option value="kebaikan">Laporkan Kebaikan</option>
-                            <option value="banding">Ajukan Banding Skor</option>
-                        </select>
-                        <input type="text" id="nama-terkait" placeholder="Nama Santri Terkait" class="w-full border border-slate-200 rounded-lg px-4 py-2.5 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" required>
-                        <textarea id="deskripsi" rows="3" class="w-full border border-slate-200 rounded-lg px-4 py-2.5 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" placeholder="Deskripsi kejadian..." required></textarea>
-                        <button type="submit" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-medium hover:bg-slate-900 transition">Kirim Laporan</button>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Jenis Laporan</label>
+                                <select id="jenis-laporan" class="w-full border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" required>
+                                    <option value="pelanggaran">Laporkan Pelanggaran (- Poin)</option>
+                                    <option value="kebaikan">Laporkan Kebaikan (+ Poin)</option>
+                                    <option value="banding">Ajukan Banding Pribadi</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Nama Santri Terkait</label>
+                                <select id="nama-terkait" class="w-full border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" required>
+                                    </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Deskripsi Kejadian</label>
+                            <textarea id="deskripsi" rows="2" class="w-full border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:ring-2 focus:ring-slate-800 outline-none" placeholder="Jelaskan detailnya..." required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-medium hover:bg-slate-900 transition shadow-md">Kirim Laporan</button>
                     </form>
                 </div>
+            </div>
 
-                <!-- Riwayat -->
-                <div class="glass-panel rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold mb-5 flex items-center"><i class="fa-solid fa-clock-rotate-left mr-2 text-slate-400"></i> Status Laporan</h3>
-                    <div id="list-riwayat-siswa" class="space-y-3 max-h-80 overflow-y-auto pr-2">
-                        <!-- Data dimasukkan via JS -->
-                    </div>
-                </div>
+            <div class="glass-panel rounded-2xl p-6 shadow-sm">
+                <h3 class="text-lg font-semibold mb-4"><i class="fa-solid fa-clock-rotate-left mr-2 text-slate-400"></i> Riwayat Laporan Terkait Saya</h3>
+                <div id="list-riwayat-siswa" class="space-y-3 max-h-60 overflow-y-auto pr-2"></div>
             </div>
         </div>
 
-        <!-- ================= PANEL GURU ================= -->
         <div id="panel-guru" class="hidden space-y-6">
-            <div class="glass-panel rounded-2xl p-6 border-l-4 border-slate-800">
-                <h2 class="text-xl font-bold text-slate-800">Panel Manajemen Guru</h2>
-                <p class="text-slate-500 text-sm mt-1">Tinjau laporan masuk dan atur kredit skor siswa.</p>
+            <div class="glass-panel rounded-2xl p-6 shadow-sm border-l-4 border-slate-800 bg-slate-800 text-white">
+                <h2 class="text-xl font-bold">Panel Manajemen Guru</h2>
+                <p class="text-slate-300 text-sm mt-1">Setujui laporan untuk memotong atau menambah kredit skor siswa secara otomatis.</p>
             </div>
 
-            <div class="glass-panel rounded-2xl p-6">
-                <h3 class="text-lg font-semibold mb-5">Laporan Menunggu Persetujuan</h3>
-                <div id="list-persetujuan-guru" class="space-y-4">
-                    <!-- Data dimasukkan via JS -->
-                </div>
+            <div class="glass-panel rounded-2xl p-6 shadow-sm">
+                <h3 class="text-lg font-semibold mb-4"><i class="fa-solid fa-inbox mr-2 text-slate-400"></i> Laporan Menunggu Persetujuan</h3>
+                <div id="list-persetujuan-guru" class="space-y-4"></div>
             </div>
         </div>
     </main>
 
-    <!-- Firebase dan Logika Sistem -->
     <script type="module">
-        // 1. IMPORT FIREBASE SDK (Versi Modular)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, updateDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, updateDoc, doc, orderBy, getDocs, where, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // 2. MASUKKAN KONFIGURASI FIREBASE ANDA DI SINI
-        // (Lihat Langkah 2 di instruksi untuk mendapatkan kode ini)
+        // ==========================================
+        // PASTE FIREBASE CONFIG ANDA DI SINI
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyC2CvnIYD8_JM9DqJQViSJGs-a1io72J88",
-  authDomain: "sistem-skor-ngx.firebaseapp.com",
-  projectId: "sistem-skor-ngx",
-  storageBucket: "sistem-skor-ngx.firebasestorage.app",
-  messagingSenderId: "938759414028",
-  appId: "1:938759414028:web:f0a4c526daebd57222e929"
+            authDomain: "sistem-skor-ngx.firebaseapp.com",
+            projectId: "sistem-skor-ngx",
+            storageBucket: "sistem-skor-ngx.firebasestorage.app",
+            messagingSenderId: "938759414028",
+            appId: "1:938759414028:web:f0a4c526daebd57222e929"
         };
+        // ==========================================
 
-        // Inisialisasi Firebase
-        let app, db;
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-        } catch (e) {
-            console.error("Firebase belum dikonfigurasi. Silakan isi firebaseConfig.");
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        // Variabel Sesi
         let currentUser = null;
-        let globalScore = 100; // Untuk kesederhanaan prototipe, skor berbagi satu database
         
-        // Elemen DOM
+        // DOM Elements
         const pageLogin = document.getElementById('page-login');
         const pageDashboard = document.getElementById('page-dashboard');
         const panelSiswa = document.getElementById('panel-siswa');
         const panelGuru = document.getElementById('panel-guru');
-        const userInfo = document.getElementById('user-info');
-        const displayName = document.getElementById('display-name');
+        const scoreDisplay = document.getElementById('student-score');
+        const scoreMessage = document.getElementById('score-message');
 
-        // Fungsi Login
-        document.getElementById('btn-login').addEventListener('click', () => {
-            const name = document.getElementById('login-name').value.trim();
-            const role = document.getElementById('login-role').value;
+        // ==== SISTEM LOGIN EKSKLUSIF ====
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usernameInput = document.getElementById('login-username').value.trim().toLowerCase();
+            const passwordInput = document.getElementById('login-password').value;
+
+            // Cari user di database
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("username", "==", usernameInput));
+            const querySnapshot = await getDocs(q);
+
+            // JIKA USERNAME TIDAK DITEMUKAN
+            if (querySnapshot.empty) {
+                return alert("Akses Ditolak! Username tidak terdaftar. Silakan hubungi Ustadz/Admin.");
+            } 
             
-            if (!name) return alert("Silakan masukkan nama Anda.");
-            if (role === 'guru' && name.toLowerCase() !== 'ustadz muhammad brillian l. h.' && name.toLowerCase() !== 'admin') {
-                // Keamanan sederhana: Hanya nama spesifik yang bisa jadi guru di versi ini
-                return alert("Akses ditolak. Nama tidak terdaftar sebagai Guru.");
+            // JIKA USERNAME DITEMUKAN, CEK PASSWORD
+            const userData = querySnapshot.docs[0].data();
+            if (userData.password !== passwordInput) {
+                return alert("Password salah! Silakan coba lagi.");
             }
 
-            currentUser = { name, role };
-            
-            // Ubah UI
+            // JIKA SUKSES MASUK
+            currentUser = { id: querySnapshot.docs[0].id, ...userData };
+            alert(`Selamat datang, ${currentUser.username.toUpperCase()}!`);
+            masukDashboard();
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            currentUser = null;
+            pageDashboard.classList.add('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+            pageLogin.classList.remove('hidden');
+            document.getElementById('form-login').reset();
+        });
+
+        function masukDashboard() {
             pageLogin.classList.add('hidden');
             pageDashboard.classList.remove('hidden');
-            userInfo.classList.remove('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
             
-            // Atur default nama Ustadz
-            if (role === 'guru' && name.toLowerCase() === 'admin') {
-                currentUser.name = 'Ustadz Muhammad Brillian L. H.';
-            }
+            document.getElementById('display-name').innerText = currentUser.username.toUpperCase();
+            document.getElementById('display-role').innerText = currentUser.role === 'guru' ? 'Guru / Ustadz' : 'Siswa / Santri';
 
-            displayName.innerText = currentUser.name;
-
-            if (role === 'siswa') {
+            if (currentUser.role === 'siswa') {
                 panelSiswa.classList.remove('hidden');
                 panelGuru.classList.add('hidden');
+                updateWarnaSkor(currentUser.score);
             } else {
                 panelGuru.classList.remove('hidden');
                 panelSiswa.classList.add('hidden');
             }
+            muatDataRealtime();
+        }
 
-            loadDataRealtime();
-        });
+        // Fungsi Mengubah Warna Skor
+        function updateWarnaSkor(skor) {
+            scoreDisplay.innerText = skor;
+            scoreDisplay.className = "text-7xl font-bold tracking-tight transition-colors duration-300"; // Reset class
+            
+            if (skor <= 50) {
+                scoreDisplay.classList.add('score-danger');
+                scoreMessage.innerText = "Peringatan! Skor Anda sangat rendah.";
+                scoreMessage.className = "text-xs font-bold text-red-500 mt-3";
+            } else if (skor <= 60) { // Mulai memerah saat menyentuh/mendekati 50
+                scoreDisplay.classList.add('score-warning');
+                scoreMessage.innerText = "Hati-hati, skor Anda mendekati batas merah.";
+                scoreMessage.className = "text-xs font-bold text-orange-500 mt-3";
+            } else {
+                scoreDisplay.classList.add('score-safe');
+                scoreMessage.innerText = "Pertahankan skor Anda!";
+                scoreMessage.className = "text-xs text-slate-400 mt-3";
+            }
+        }
 
-        // Fungsi Logout
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            currentUser = null;
-            pageDashboard.classList.add('hidden');
-            userInfo.classList.add('hidden');
-            pageLogin.classList.remove('hidden');
-            document.getElementById('login-name').value = '';
-        });
-
-        // Kirim Laporan ke Database
+        // ==== LOGIK FORM LAPORAN ====
         document.getElementById('form-laporan').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!db) return alert("Sambungkan Firebase terlebih dahulu!");
-
             const jenis = document.getElementById('jenis-laporan').value;
             const terkait = document.getElementById('nama-terkait').value;
             const deskripsi = document.getElementById('deskripsi').value;
 
-            try {
-                await addDoc(collection(db, "laporan"), {
-                    pelapor: currentUser.name,
-                    terkait: terkait,
-                    jenis: jenis,
-                    deskripsi: deskripsi,
-                    status: "menunggu",
-                    timestamp: new Date()
-                });
-                e.target.reset();
-                alert("Laporan berhasil dikirim ke database!");
-            } catch (error) {
-                console.error("Error menambah laporan: ", error);
-            }
+            await addDoc(collection(db, "laporan"), {
+                pelapor: currentUser.username,
+                terkait: terkait,
+                jenis: jenis,
+                deskripsi: deskripsi,
+                status: "menunggu",
+                timestamp: new Date()
+            });
+            e.target.reset();
+            alert("Laporan terkirim dan menunggu persetujuan Guru.");
         });
 
-        // Baca Data dari Database secara Realtime
-        function loadDataRealtime() {
-            if (!db) return;
+        // ==== MUAT DATA REAL-TIME ====
+        function muatDataRealtime() {
+            // 1. Data Ranking (Semua User Siswa) & Dropdown Form
+            onSnapshot(query(collection(db, "users"), where("role", "==", "siswa"), orderBy("score", "desc")), (snapshot) => {
+                const listRanking = document.getElementById('list-ranking');
+                const dropdownTerkait = document.getElementById('nama-terkait');
+                listRanking.innerHTML = '';
+                dropdownTerkait.innerHTML = '<option value="">-- Pilih Nama Santri --</option>';
 
-            const q = query(collection(db, "laporan"), orderBy("timestamp", "desc"));
-            onSnapshot(q, (snapshot) => {
+                let rank = 1;
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    
+                    // Update Dropdown Form
+                    dropdownTerkait.innerHTML += `<option value="${data.username}">${data.username.toUpperCase()}</option>`;
+
+                    // Update Tabel Ranking
+                    let badgeColor = data.score <= 50 ? 'bg-red-100 text-red-700' : (data.score <= 60 ? 'bg-orange-100 text-orange-700' : 'bg-teal-100 text-teal-700');
+                    let rankIcon = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : rank));
+                    
+                    listRanking.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3 text-center font-bold text-slate-500">${rankIcon}</td>
+                            <td class="p-3 font-medium uppercase text-slate-700">${data.username}</td>
+                            <td class="p-3 text-center"><span class="px-3 py-1 rounded-full font-bold text-xs ${badgeColor}">${data.score}</span></td>
+                        </tr>
+                    `;
+                    
+                    // Jika data ini adalah user yang sedang login, update skor di layarnya
+                    if (currentUser && currentUser.role === 'siswa' && currentUser.id === docSnap.id) {
+                        updateWarnaSkor(data.score);
+                    }
+                    rank++;
+                });
+            });
+
+            // 2. Data Laporan
+            onSnapshot(query(collection(db, "laporan"), orderBy("timestamp", "desc")), (snapshot) => {
                 const listRiwayat = document.getElementById('list-riwayat-siswa');
                 const listGuru = document.getElementById('list-persetujuan-guru');
-                
-                listRiwayat.innerHTML = '';
-                listGuru.innerHTML = '';
-                let tempScore = 100; // Kalkulasi skor dinamis berdasarkan laporan yang disetujui
+                listRiwayat.innerHTML = ''; listGuru.innerHTML = '';
 
                 snapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const id = docSnap.id;
-                    
-                    // Hitung Skor
-                    if (data.status === 'disetujui') {
-                        if (data.jenis === 'pelanggaran') tempScore -= 10;
-                        if (data.jenis === 'kebaikan' || data.jenis === 'banding') tempScore += 10;
-                    }
 
-                    // Render UI Siswa (Hanya tampilkan laporannya sendiri atau jika dia yang terkait)
-                    if (currentUser.role === 'siswa' && (data.pelapor === currentUser.name || data.terkait === currentUser.name)) {
+                    // UI Siswa (Hanya tampilkan jika dia pelapor atau yang dilaporkan)
+                    if (currentUser.role === 'siswa' && (data.pelapor === currentUser.username || data.terkait === currentUser.username)) {
                         let statusColor = data.status === 'menunggu' ? 'bg-amber-100 text-amber-700' : 
                                           data.status === 'disetujui' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
-                        
                         listRiwayat.innerHTML += `
-                            <div class="border border-slate-100 bg-white rounded-xl p-4 text-sm shadow-sm">
+                            <div class="border border-slate-100 bg-white rounded-xl p-4 text-sm shadow-sm mb-3">
                                 <div class="flex justify-between items-start mb-2">
-                                    <span class="font-semibold text-slate-700 uppercase text-xs tracking-wider">${data.jenis}</span>
-                                    <span class="px-2.5 py-1 rounded-md text-xs font-semibold ${statusColor}">${data.status.toUpperCase()}</span>
+                                    <span class="font-bold text-slate-700 uppercase text-xs">${data.jenis}</span>
+                                    <span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase ${statusColor}">${data.status}</span>
                                 </div>
-                                <p class="text-slate-600"><strong>Subjek:</strong> ${data.terkait}</p>
+                                <p class="text-slate-600"><strong>Terkait:</strong> ${data.terkait.toUpperCase()}</p>
                                 <p class="text-slate-500 mt-1">${data.deskripsi}</p>
-                            </div>
-                        `;
+                            </div>`;
                     }
 
-                    // Render UI Guru (Tampilkan yang menunggu persetujuan)
+                    // UI Guru (Hanya yang menunggu)
                     if (currentUser.role === 'guru' && data.status === 'menunggu') {
+                        let poinText = data.jenis === 'pelanggaran' ? '<span class="text-red-500 font-bold">(-10 Poin)</span>' : '<span class="text-green-500 font-bold">(+10 Poin)</span>';
                         listGuru.innerHTML += `
-                            <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm flex flex-col md:flex-row justify-between gap-4 mb-3">
                                 <div>
-                                    <h4 class="font-bold text-slate-800 uppercase text-sm mb-1">${data.jenis} <span class="text-slate-400 normal-case font-normal">(Pelapor: ${data.pelapor})</span></h4>
-                                    <p class="text-sm text-slate-700"><strong>Terkait:</strong> ${data.terkait}</p>
-                                    <p class="text-sm text-slate-500 mt-1">"${data.deskripsi}"</p>
+                                    <h4 class="font-bold text-slate-800 uppercase text-sm mb-1">${data.jenis} ${poinText}</h4>
+                                    <p class="text-sm text-slate-700"><strong>Dilaporkan oleh:</strong> ${data.pelapor} | <strong>Terkait:</strong> ${data.terkait}</p>
+                                    <p class="text-sm text-slate-500 mt-1 italic">"${data.deskripsi}"</p>
                                 </div>
                                 <div class="flex space-x-2 shrink-0">
-                                    <button onclick="prosesLaporan('${id}', 'disetujui')" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-900 transition">Setujui</button>
-                                    <button onclick="prosesLaporan('${id}', 'ditolak')" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition">Tolak</button>
+                                    <button onclick="prosesLaporan('${id}', 'disetujui', '${data.terkait}', '${data.jenis}')" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-900 transition">Setujui</button>
+                                    <button onclick="prosesLaporan('${id}', 'ditolak', '', '')" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition">Tolak</button>
                                 </div>
-                            </div>
-                        `;
+                            </div>`;
                     }
                 });
-
-                // Update UI Skor
-                tempScore = Math.min(tempScore, 100); // Maksimal 100
-                const scoreDisplay = document.getElementById('student-score');
-                scoreDisplay.innerText = tempScore;
-                if(tempScore < 50) scoreDisplay.className = "text-7xl font-bold tracking-tight text-red-500";
-                else if(tempScore < 80) scoreDisplay.className = "text-7xl font-bold tracking-tight text-amber-500";
-                else scoreDisplay.className = "text-7xl font-bold tracking-tight text-slate-800";
-
-                if(listRiwayat.innerHTML === '') listRiwayat.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Belum ada data.</p>';
-                if(listGuru.innerHTML === '') listGuru.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Tidak ada laporan yang perlu ditinjau.</p>';
+                
+                if(listRiwayat.innerHTML === '') listRiwayat.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Belum ada riwayat laporan.</p>';
+                if(listGuru.innerHTML === '') listGuru.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Tidak ada laporan baru.</p>';
             });
         }
 
-        // Fungsi Global untuk Tombol Aksi Guru
-        window.prosesLaporan = async (id, aksi) => {
-            if (!db) return;
+        // ==== FUNGSI PERSETUJUAN GURU (Update Skor Spesifik) ====
+        window.prosesLaporan = async (laporanId, aksi, terkaitUsername, jenis) => {
             try {
-                const docRef = doc(db, "laporan", id);
-                await updateDoc(docRef, { status: aksi });
+                // 1. Update status laporan
+                await updateDoc(doc(db, "laporan", laporanId), { status: aksi });
+
+                // 2. Jika disetujui, update skor user terkait
+                if (aksi === 'disetujui') {
+                    // Ambil data user terkait
+                    const userRef = doc(db, "users", terkaitUsername);
+                    const userSnap = await getDocs(query(collection(db, "users"), where("username", "==", terkaitUsername)));
+                    
+                    if (!userSnap.empty) {
+                        let currentScore = userSnap.docs[0].data().score;
+                        
+                        // Logika Potong / Tambah Poin
+                        if (jenis === 'pelanggaran') currentScore -= 10;
+                        if (jenis === 'kebaikan' || jenis === 'banding') currentScore += 10;
+                        
+                        // Maksimal skor 100
+                        if (currentScore > 100) currentScore = 100;
+
+                        // Simpan skor baru
+                        await updateDoc(doc(db, "users", userSnap.docs[0].id), { score: currentScore });
+                    }
+                }
             } catch (error) {
-                console.error("Error update status: ", error);
+                console.error("Error update persetujuan: ", error);
             }
         };
     </script>
